@@ -478,7 +478,6 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
 
     """
-    util.raiseNotDefined() #TODO:remove
 
     position, foodGrid = state
 
@@ -529,8 +528,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -564,8 +562,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
-        if state in self.food:
+        if state in self.food.asList():
             return True
         return False
 
