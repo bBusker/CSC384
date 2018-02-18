@@ -58,14 +58,91 @@ def binary_ne_grid(kenken_grid):
     res = CSP("{}-size_binary_ne_grid".format(size), vars)
     for c in cons:
         res.add_constraint(c)
-    return res, vars
+    return res, vars  #TODO: check vars ordering
 
 
 def nary_ad_grid(kenken_grid):
-    # TODO! IMPLEMENT THIS!
-    pass
+    size = kenken_grid[0][0]
+
+    dom = []
+    for i in range(size):
+        dom += [i + 1]
+
+    vars = []
+    for i in range(size * size):
+        vars += [Variable('K{}{}'.format(int(i / size) + 1, i % size + 1), dom)]
+
+    cons = []
+    for i in range(size):
+        con_c = Constraint("C_col{}".format(i),  [vars[i*size:i*size+size]])
+        sat_tuples = []
+
+        temp1 = [[num] for num in range(size)]
+        temp2 = []
+        for i in range(size):
+            for element in temp1:
+                for num in range(size):
+                    temp2.append(element + [num])
+            temp1 = temp2
+            temp2 = []
+
+        list = temp1
+
+        for tuple in list:
+            flag = True
+            for i in size:
+                if tuple.count(i) != 1:
+                    flag = False
+            if flag:
+                sat_tuples += tuple(tuple)
+
+        con_c.add_satisfying_tuples(sat_tuples)
+        cons += [con_c]
+
+
+
+        con_r = Constraint("C_row{}".format(i), [vars[i * size:i * size + size]])
+        sat_tuples = []
+
+        temp1 = [[num] for num in range(size)]
+        temp2 = []
+        for i in range(size):
+            for element in temp1:
+                for num in range(size):
+                    temp2.append(element + [num])
+            temp1 = temp2
+            temp2 = []
+
+        list = temp1
+
+        for tup in list:
+            flag = True
+            for i in size:
+                if tup.count(i) != 1:
+                    flag = False
+            if flag:
+                sat_tuples += tuple(tup)
+
+        con_r.add_satisfying_tuples(sat_tuples)
+        cons += [con_r]
+
+
+    res = CSP("{}-size_nary_ad_grid".format(size), vars)
+    for c in cons:
+        res.add_constraint(c)
+    return res, vars
+
+
 
 def kenken_csp_model(kenken_grid):
     # TODO! IMPLEMENT THIS!
     pass
 
+temp1 = [[num] for num in range(n)]
+temp2 = []
+for i in range(n):
+    for element in temp1:
+        for num in range(n):
+            temp2.append([element + num])
+    temp1 = temp2
+    temp2 = []
