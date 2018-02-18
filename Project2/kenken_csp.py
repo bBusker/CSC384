@@ -29,9 +29,37 @@ The grid-only models do not need to encode the cage constraints.
 
 '''
 
+from cspbase import *
+
 def binary_ne_grid(kenken_grid):
-    # TODO! IMPLEMENT THIS!
-    pass
+    size = kenken_grid[0][0]
+
+    dom = []
+    for i in range(size):
+        dom += [i+1]
+
+    vars = []
+    for i in range(size*size):
+        vars += [Variable('K{}{}'.format(int(i/size)+1, i%size+1), dom)]
+
+    cons = []
+    for i in range(len(vars)):
+        for j in range(len(vars)):
+            if ((int(i/size) == int(j/size)) or (i%size == j%size)) and (i != j) and (j>i):
+                con = Constraint("C(K{}{},K{}{})".format(int(i/size)+1, i%size+1, int(j/size)+1, j%size+1), [vars[i], vars[j]])
+                sat_tuples = []
+                for k in dom:
+                    for l in dom:
+                        if k != l:
+                            sat_tuples += [(k,l)]
+                con.add_satisfying_tuples(sat_tuples)
+                cons += [con]
+
+    res = CSP("{}-size_binary_ne_grid".format(size), vars)
+    for c in cons:
+        res.add_constraint(c)
+    return res, vars
+
 
 def nary_ad_grid(kenken_grid):
     # TODO! IMPLEMENT THIS!

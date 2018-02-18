@@ -142,9 +142,9 @@ def nQueens(n):
     return csp
 
 # SPECIFY WHAT TO TEST
-TEST_MODELS      = False
+TEST_MODELS      = True
 TEST_HEURISTICS  = False
-TEST_PROPAGATORS = True
+TEST_PROPAGATORS = False
 
 class TestStringMethods(unittest.TestCase):
     def helper_prop(self, board, prop=prop_FC, var_ord=ord_mrv):
