@@ -142,8 +142,8 @@ def nQueens(n):
     return csp
 
 # SPECIFY WHAT TO TEST
-TEST_MODELS      = True
-TEST_HEURISTICS  = True
+TEST_MODELS      = False
+TEST_HEURISTICS  = False
 TEST_PROPAGATORS = True
 
 class TestStringMethods(unittest.TestCase):
@@ -260,7 +260,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(pruned[0], "Failed a FC test: returned DWO too early.")
         cur_var[4].assign(1)
         pruned = propagators.prop_FC(queens,newVar=cur_var[4])
-
         self.assertFalse(pruned[0], "Failed a FC test: should have resulted in a DWO")
 
 if __name__ == '__main__':

@@ -76,8 +76,30 @@ def prop_BT(csp, newVar=None):
     return True, []
 
 def prop_FC(csp, newVar=None):
-    # TODO! IMPLEMENT THIS!
-    pass
+
+    if newVar == None:
+        constraints = csp.get_all_cons()
+    else:
+        constraints = csp.get_cons_with_var(newVar)
+
+    pruned = []
+
+    for constraint in constraints:
+        if constraint.get_n_unasgn() == 1:
+            u_var = constraint.get_unasgn_vars()[0]
+            scope = constraint.get_scope()
+            for val in u_var.cur_domain():
+                test = scope.copy()
+                for i in range(len(test)):
+                    test[i] = test[i].get_assigned_value()
+                test[scope.index(u_var)] = val
+                if not constraint.check(test):
+                    u_var.prune_value(val)
+                    pruned += [(u_var, val)]
+            if u_var.cur_domain_size() == 0:
+                return False, pruned
+
+    return True, pruned
 
 def prop_GAC(csp, newVar=None):
     '''
@@ -85,7 +107,29 @@ def prop_GAC(csp, newVar=None):
     all constraints. Otherwise we do GAC enforce with constraints containing 
     newVar on GAC Queue.
     '''
-    # TODO! IMPLEMENT THIS!
-    pass
+
+    if newVar == None:
+        constraints = csp.get_all_cons()
+    else:
+        constraints = csp.get_cons_with_var(newVar)
+
+    pruned = []
+
+    while not constraints.isEmpty():
+        constraint = constraints.pop()
+        for var in constraint.get_unasgn_vars():
+            for val in var.cur_domain():
+                if constraint.has_support(var, val):
+                    continue
+                else:
+                    val.prune_value(val)
+                    pruned += [(var, val)]
+                    if val.cur_domain_size() == 0:
+                        return False, pruned
+                    for _constraint in csp.get_all_cons():
+                        if var in _constraint.get_scope() and _constraint not in constraints:
+                            constraints = [_constraint] + constraints
+
+    return True, pruned
 
 
