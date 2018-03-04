@@ -143,8 +143,8 @@ def nQueens(n):
 
 # SPECIFY WHAT TO TEST
 TEST_MODELS      = True
-TEST_HEURISTICS  = False
-TEST_PROPAGATORS = False
+TEST_HEURISTICS  = True
+TEST_PROPAGATORS = True
 
 class TestStringMethods(unittest.TestCase):
     def helper_prop(self, board, prop=prop_FC, var_ord=ord_mrv):
@@ -196,17 +196,17 @@ class TestStringMethods(unittest.TestCase):
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")
     def test_props_4(self):
         board = BOARDS[3]
-        self.helper_prop(board, prop_GAC)
+        self.helper_prop(board, prop_BT, val_lcv) #TODO: Custom testing
 
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")   
     def test_props_5(self):
         board = BOARDS[4]
-        self.helper_prop(board, prop_GAC)
+        self.helper_prop(board, prop_BT)
 
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")
     def test_props_6(self):
         board = BOARDS[5]
-        self.helper_prop(board, prop_GAC)
+        self.helper_prop(board, prop_BT)
 
     @unittest.skipUnless(TEST_HEURISTICS, "Not Testing Heuristics.")
     def test_ord_mrv_1(self):
@@ -263,6 +263,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(pruned[0], "Failed a FC test: should have resulted in a DWO")
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)
 
     

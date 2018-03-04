@@ -20,15 +20,51 @@ be accessed via methods.
 
 import random
 from copy import deepcopy
+import numpy as np
+import itertools
 
 def ord_dh(csp):
-    # TODO! IMPLEMENT THIS!
-    pass
+    vars = csp.get_all_unasgn_vars()
+    count = np.zeros(len(vars))
+
+    for var in vars:
+        for constraint in csp.get_cons_with_var(var):
+            cons = constraint.get_scope()
+            for varr in cons:
+                if varr in vars:
+                    count[vars.index(varr)] += 1
+
+    res = vars[np.argmax(count)]
+
+    return res
 
 def ord_mrv(csp):
-    # TODO! IMPLEMENT THIS!
-    pass
+    min_len = 9999
+    res = csp.vars[0]
+    for var in csp.vars:
+        if len(var.curdom)<min_len and var.assignedValue == None:
+            res = var
+            min_len = len(var.curdom)
+    return res
 
-def val_lcv(csp, var):
-    # TODO! IMPLEMENT THIS!
-    pass
+def val_lcv(csp, var): #TODO: prolly wrong and need test
+    count = 0
+    res_dict = {}
+    unassigned = csp.get_all_unasgn_vars()
+    unassigned.remove(var)
+
+    for vvar in unassigned:
+        count += vvar.cur_domain_size()
+
+    constraints = csp.get_cons_with_var(var)
+    for val in var.cur_domain():
+        count_val = 0
+        var.assign(val)
+        for constraint in constraints:
+            for vvar in unassigned:
+                for vval in vvar.cur_domain():
+                    if constraint.has_support(vvar,vval):
+                        count_val += 1
+        var.unassign(val)
+        res_dict[val] = count_val
+

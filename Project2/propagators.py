@@ -58,7 +58,7 @@ unassigned variable left
 
 '''
 
-def prop_BT(csp, newVar=None):
+def prop_BT(csp, newVar=None): #TODO: infinite loop or sth??
     '''
     Do plain backtracking propagation. That is, do no propagation at all. Just 
     check fully instantiated constraints.
@@ -115,16 +115,16 @@ def prop_GAC(csp, newVar=None):
 
     pruned = []
 
-    while not constraints.isEmpty():
+    while constraints:
         constraint = constraints.pop()
         for var in constraint.get_unasgn_vars():
             for val in var.cur_domain():
                 if constraint.has_support(var, val):
                     continue
                 else:
-                    val.prune_value(val)
+                    var.prune_value(val)
                     pruned += [(var, val)]
-                    if val.cur_domain_size() == 0:
+                    if var.cur_domain_size() == 0:
                         return False, pruned
                     for _constraint in csp.get_all_cons():
                         if var in _constraint.get_scope() and _constraint not in constraints:
