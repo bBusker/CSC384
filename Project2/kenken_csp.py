@@ -81,7 +81,7 @@ def binary_ne_grid(kenken_grid):
     for c in cons:
         res.add_constraint(c)
 
-    return res, vars  #TODO: check vars ordering
+    return res, vars
 
 
 def nary_ad_grid(kenken_grid):

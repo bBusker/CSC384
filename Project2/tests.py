@@ -196,17 +196,17 @@ class TestStringMethods(unittest.TestCase):
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")
     def test_props_4(self):
         board = BOARDS[3]
-        self.helper_prop(board, prop_BT, val_lcv) #TODO: Custom testing
+        self.helper_prop(board, prop_FC)
 
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")   
     def test_props_5(self):
         board = BOARDS[4]
-        self.helper_prop(board, prop_BT)
+        self.helper_prop(board, prop_FC)
 
     @unittest.skipUnless(TEST_PROPAGATORS and TEST_MODELS, "Not Testing Propagators and Models.")
     def test_props_6(self):
         board = BOARDS[5]
-        self.helper_prop(board, prop_BT)
+        self.helper_prop(board, prop_FC)
 
     @unittest.skipUnless(TEST_HEURISTICS, "Not Testing Heuristics.")
     def test_ord_mrv_1(self):
@@ -263,6 +263,14 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(pruned[0], "Failed a FC test: should have resulted in a DWO")
 
 if __name__ == '__main__':
+
+    csp, var_array = kenken_csp_model(BOARDS[4])
+    csp.vars[0].assign(1)
+    csp.vars[0].assign(2)
+    val_lcv(csp, var_array[0][3])
+
+
+
     unittest.main(verbosity=2)
 
     

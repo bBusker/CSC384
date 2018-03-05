@@ -47,14 +47,15 @@ def ord_mrv(csp):
             min_len = len(var.curdom)
     return res
 
-def val_lcv(csp, var): #TODO: prolly wrong and need test
-    count = 0
+def val_lcv(csp, var):
+
     res_dict = {}
     unassigned = csp.get_all_unasgn_vars()
-    unassigned.remove(var)
+    if var in unassigned:
+        unassigned.remove(var)
 
-    for vvar in unassigned:
-        count += vvar.cur_domain_size()
+    # for vvar in unassigned:
+    #     count_prev += vvar.cur_domain_size()
 
     constraints = csp.get_cons_with_var(var)
     for val in var.cur_domain():
@@ -65,6 +66,8 @@ def val_lcv(csp, var): #TODO: prolly wrong and need test
                 for vval in vvar.cur_domain():
                     if constraint.has_support(vvar,vval):
                         count_val += 1
-        var.unassign(val)
+        var.unassign()
         res_dict[val] = count_val
 
+    res = sorted(res_dict, key=res_dict.get, reverse=True)
+    return res

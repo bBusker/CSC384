@@ -58,7 +58,7 @@ unassigned variable left
 
 '''
 
-def prop_BT(csp, newVar=None): #TODO: infinite loop or sth??
+def prop_BT(csp, newVar=None):
     '''
     Do plain backtracking propagation. That is, do no propagation at all. Just 
     check fully instantiated constraints.
