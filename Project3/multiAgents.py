@@ -17,6 +17,7 @@ from game import Directions
 import random, util
 
 from game import Agent
+#random.seed(0)
 
 class ReflexAgent(Agent):
     """
@@ -69,12 +70,39 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        currFood = currentGameState.getFood()
+        remainingCapsules = successorGameState.getCapsules()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        score = 0
+
+        remainingFood = []
+        for i in range(currFood.width):
+            for j in range(currFood.height):
+                if currFood.data[i][j] == True:
+                    remainingFood += [[i,j]]
+        food_dist = [manhattanDistance(newPos, food) for food in remainingFood]
+        score -= 3*min(food_dist)
+
+        for capsule in remainingCapsules:
+            score -= 6*manhattanDistance(newPos, capsule)
+        if len(remainingCapsules) < len(currentGameState.getCapsules()):
+            score += 100
+
+        for ghost in newGhostStates:
+            if ghost.configuration.getPosition() == newPos:
+                score -= 9999
+                break
+            Manh = (manhattanDistance(ghost.configuration.getPosition(), newPos))
+            if ghost.scaredTimer == 0 or ghost.scaredTimer == 1:
+                score -= 50/Manh*len(newGhostStates)
+            else:
+                score -= 4*Manh/len(newGhostStates)
+
+        score += successorGameState.getScore()
+
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -110,6 +138,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    #Min: 0
+    #Max: 1
 
     def getAction(self, gameState):
         """
@@ -128,8 +158,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.getNumAgents():
             Returns the total number of agents in the game
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        max = -999999
+        agent_actions = gameState.getLegalActions()
+        res = agent_actions[0]
+        for agent_action in agent_actions:
+            score = self.DFMiniMax(gameState.generateSuccessor(0, agent_action), 0, 1, 0)
+            if score > max:
+                max = score
+                res = agent_action
+        return res
+
+
+    def DFMiniMax(self, gameState, player, ghost_num, depth):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+        else:
+            ChildList = []
+            if player == 0: #Min
+                agent_actions = gameState.getLegalActions(ghost_num)
+                for agent_action in agent_actions:
+                    ChildList += [gameState.generateSuccessor(ghost_num, agent_action)]
+
+                if ghost_num == gameState.getNumAgents()-1:
+                    Results = [self.DFMiniMax(succGameState, 1, 0, depth+1) for succGameState in ChildList]
+                else:
+                    Results = [self.DFMiniMax(succGameState, 0, ghost_num+1, depth) for succGameState in ChildList]
+
+                return min(Results)
+
+            elif player == 1: #Max
+                agent_actions = gameState.getLegalActions()
+                for agent_action in agent_actions:
+                    ChildList += [gameState.generateSuccessor(0, agent_action)]
+
+                Results = [self.DFMiniMax(succGameState, 0, 1, depth) for succGameState in ChildList]
+                return max(Results)
+
+
+
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
