@@ -134,7 +134,7 @@ class MultiAgentSearchAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
 
-class MinimaxAgent(MultiAgentSearchAgent):
+class MinimaxAgent(MultiAgentSearchAgent): #TODO: optimize player, ghost_num -> agent_num
     """
       Your minimax agent (question 2)
     """
@@ -159,7 +159,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
 
-        max = -999999
+        max = -float("inf")
         agent_actions = gameState.getLegalActions()
         res = agent_actions[0]
         for agent_action in agent_actions:
@@ -196,10 +196,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return max(Results)
 
 
-
-
-
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
@@ -209,8 +205,47 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        alpha = -float("inf")
+        beta = float("inf")
+        agent_actions = gameState.getLegalActions()
+        res = agent_actions[0]
+        for agent_action in agent_actions:
+            score = self.ABPruning(gameState.generateSuccessor(0, agent_action), 1, 0, alpha, beta)
+            if score > alpha:
+                alpha = score
+                res = agent_action
+            if beta <= alpha:
+                break
+        return res
+
+    def ABPruning(self, gameState, agent_no, depth, alpha, beta):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+        else:
+            ChildList = gameState.getLegalActions(agent_no)
+
+            if agent_no == 0: #Pacman, Max
+                for action in ChildList:
+                    succGameState = gameState.generateSuccessor(agent_no, action)
+                    alpha = max(alpha, self.ABPruning(succGameState, agent_no+1, depth, alpha, beta))
+                    if beta <= alpha:
+                        break
+                return alpha
+            elif agent_no == gameState.getNumAgents()-1:
+                for action in ChildList:
+                    succGameState = gameState.generateSuccessor(agent_no, action)
+                    beta = min(beta, self.ABPruning(succGameState, 0, depth+1, alpha, beta))
+                    if beta <= alpha:
+                        break
+                return beta
+            else:
+                for action in ChildList:
+                    succGameState = gameState.generateSuccessor(agent_no, action)
+                    beta = min(beta, self.ABPruning(succGameState, agent_no+1, depth, alpha, beta))
+                    if beta <= alpha:
+                        break
+                return beta
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
