@@ -251,16 +251,45 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
       Your expectimax agent (question 4)
     """
+    #Min: 0
+    #Max: 1
 
     def getAction(self, gameState):
-        """
-          Returns the expectimax action using self.depth and self.evaluationFunction
+        max = -float("inf")
+        agent_actions = gameState.getLegalActions()
+        res = agent_actions[0]
+        for agent_action in agent_actions:
+            score = self.DFExpecimax(gameState.generateSuccessor(0, agent_action), 0, 1, 0)
+            if score > max:
+                max = score
+                res = agent_action
+        return res
 
-          All ghosts should be modeled as choosing uniformly at random from their
-          legal moves.
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+    def DFExpecimax(self, gameState, player, ghost_num, depth):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
+            return self.evaluationFunction(gameState)
+        else:
+            ChildList = []
+            if player == 0: #Min
+                agent_actions = gameState.getLegalActions(ghost_num)
+                for agent_action in agent_actions:
+                    ChildList += [gameState.generateSuccessor(ghost_num, agent_action)]
+
+                if ghost_num == gameState.getNumAgents()-1:
+                    Results = [self.DFExpecimax(succGameState, 1, 0, depth+1) for succGameState in ChildList]
+                else:
+                    Results = [self.DFExpecimax(succGameState, 0, ghost_num+1, depth) for succGameState in ChildList]
+
+                return sum(Results)/float(len(Results))
+
+            elif player == 1: #Max
+                agent_actions = gameState.getLegalActions()
+                for agent_action in agent_actions:
+                    ChildList += [gameState.generateSuccessor(0, agent_action)]
+
+                Results = [self.DFExpecimax(succGameState, 0, 1, depth) for succGameState in ChildList]
+                return max(Results)
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -269,8 +298,65 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacPos = currentGameState.getPacmanPosition()
+    foodGrid = currentGameState.getFood()
+    capsulesPos = currentGameState.getCapsules()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+
+    score = 0
+
+    capsuleScore = 0
+    ghostScore = 0
+    closestFood = 0
+    foodDensity = 0
+
+    for ghost in ghostStates:
+        if ghost.scaredTimer > 0:
+            capsuleScore = 1
+        if ghost.configuration.getPosition() == pacPos:
+            return -float('inf') #TODO: mebe bug
+        Manh = (manhattanDistance(ghost.configuration.getPosition(), pacPos))
+        if ghost.scaredTimer == 0 or ghost.scaredTimer == 1:
+            if Manh <= 2:
+                ghostScore -= 1/float(Manh)
+        else:
+            ghostScore += 1/float(Manh)
+
+    remainingFood = []
+    for i in range(foodGrid.width):
+        for j in range(foodGrid.height):
+            if foodGrid.data[i][j] == True:
+                remainingFood += [[i,j]]
+
+    foodDistances = [manhattanDistance(pacPos, food) for food in remainingFood]
+    try:
+        closestFood = 1/float(min(foodDistances))
+    except:
+        return 9999
+
+    for food in remainingFood:
+        temp = False
+        for i,j in [(1,0),(-1,0),(0,1),(0,-1)]:
+            try:
+                isFood = foodGrid[food[0]+i][food[1]+j]
+                temp = isFood or temp
+            except:
+                pass
+        if temp:
+            foodDensity += 1
+    foodDensity = foodDensity / float(len(remainingFood)+1)
+
+    # for capsule in capsulesPos:
+    #     score -= 6*manhattanDistance(pacPos, capsule)
+    # if len(capsulesPos) < len(currentGameState.getCapsules()):
+    #     score += 100
+
+    gameStateScore = currentGameState.getScore()
+
+    score = 1*capsuleScore + 1*ghostScore + 1*closestFood + 1*foodDensity + 1*gameStateScore
+
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
